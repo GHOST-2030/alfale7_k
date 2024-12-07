@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مسابقة سباق المعرفة</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #6a11cb, #2575fc);
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            margin-top: 20px;
+            font-size: 2.5rem;
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.6);
+        }
+
+        .question-container {
+            margin: 30px auto;
+            width: 80%;
+            max-width: 600px;
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .question {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            padding: 15px;
+            background: #f1f1f1;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            font-size: 1.2rem;
+            color: #333;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .option:hover {
+            background: #dcdcdc;
+            transform: scale(1.05);
+        }
+
+        .scores {
+            margin: 20px;
+            font-size: 1.5rem;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.4);
+        }
+
+        .button {
+            padding: 10px 20px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .button:hover {
+            background: #45a049;
+        }
+
+        .credits {
+            margin-top: 40px;
+            font-size: 1.2rem;
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .credits h2 {
+            margin: 5px 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .credits h3 {
+            margin: 5px 0;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>مسابقة سباق المعرفة</h1>
+    <div class="scores" id="scores">النقاط: فريق 1 (0) - فريق 2 (0)</div>
+    <div class="question-container">
+        <div class="question" id="question">ما هي عاصمة المملكة العربية السعودية؟</div>
+        <div class="options">
+            <div class="option" onclick="checkAnswer(0)">جدة</div>
+            <div class="option" onclick="checkAnswer(1)">الرياض</div>
+            <div class="option" onclick="checkAnswer(2)">الدمام</div>
+            <div class="option" onclick="checkAnswer(3)">مكة</div>
+        </div>
+    </div>
+    <button class="button" onclick="nextQuestion()">السؤال التالي</button>
+
+    <!-- أسماء المصمم والمعلم -->
+    <div class="credits">
+        <h2>تصميم الطالب: خالد صلاح الفالح</h2>
+        <h3>تحت إشراف: الأستاذ راشد السنيدي</h3>
+    </div>
+
+    <!-- إضافة الأصوات -->
+    <audio id="correctSound" src="correct.mp3"></audio>
+    <audio id="wrongSound" src="wrong.mp3"></audio>
+
+    <script>
+        // قاعدة بيانات ضخمة للأسئلة
+        const questions = [
+            { question: "ما هي عاصمة السعودية؟", answers: ["جدة", "الرياض", "مكة", "الدمام"], correct: 1 },
+            { question: "كم عدد كواكب المجموعة الشمسية؟", answers: ["7", "8", "9", "10"], correct: 1 },
+            { question: "ما هو أسرع حيوان بري؟", answers: ["الفهد", "الحصان", "الغزال", "النمر"], correct: 0 },
+            { question: "ما هي أكبر قارة في العالم؟", answers: ["آسيا", "أفريقيا", "أوروبا", "أمريكا الجنوبية"], correct: 0 },
+            { question: "ما هو الحيوان الذي يعيش في القطب الجنوبي؟", answers: ["الدب القطبي", "البطريق", "النسر", "الكنغر"], correct: 1 },
+            { question: "ما هي عاصمة اليابان؟", answers: ["طوكيو", "أوساكا", "كيوتو", "ناغويا"], correct: 0 },
+            { question: "كم تبلغ سرعة الضوء؟", answers: ["300,000 كم/ثانية", "150,000 كم/ثانية", "450,000 كم/ثانية", "500,000 كم/ثانية"], correct: 0 },
+            { question: "ما هو أعلى جبل في العالم؟", answers: ["جبل كليمنجارو", "جبل إيفرست", "جبل ماكينلي", "جبل مون بلان"], correct: 1 },
+            { question: "ما هي أول سورة في القرآن الكريم؟", answers: ["سورة البقرة", "سورة الفاتحة", "سورة آل عمران", "سورة الكوثر"], correct: 1 },
+            { question: "ما هي عاصمة فرنسا؟", answers: ["مارسيليا", "باريس", "ليون", "نيس"], correct: 1 },
+            { question: "ما هو أصغر كوكب في المجموعة الشمسية؟", answers: ["عطارد", "المريخ", "نبتون", "الزهرة"], correct: 0 },
+            { question: "من هو مخترع الهاتف؟", answers: ["توماس إديسون", "ألكسندر جراهام بيل", "جيمس وات", "إسحاق نيوتن"], correct: 1 },
+            { question: "ما هو الحيوان الذي يُطلق عليه ملك الغابة؟", answers: ["النمر", "الأسد", "الفهد", "الدب"], correct: 1 },
+            { question: "ما هي عاصمة مصر؟", answers: ["الإسكندرية", "القاهرة", "السويس", "الأقصر"], correct: 1 },
+            { question: "ما هو أضخم حيوان يعيش على سطح الأرض؟", answers: ["الحوت الأزرق", "الفيل الأفريقي", "التمساح", "الدب القطبي"], correct: 0 }
+        ];
+
+        let currentTeam = 0;
+        let teamScores = [0, 0];
+        const correctSound = document.getElementById("correctSound");
+        const wrongSound = document.getElementById("wrongSound");
+
+        // توليد سؤال عشوائي
+        function generateQuestion() {
+            const randomIndex = Math.floor(Math.random() * questions.length);
+            const topic = questions[randomIndex];
+
+            const questionElement = document.getElementById("question");
+            questionElement.textContent = topic.question;
+
+            const optionsElements = document.querySelectorAll(".option");
+            optionsElements.forEach((option, index) => {
+                option.textContent = topic.answers[index];
+                option.style.background = "#f1f1f1";
+                option.setAttribute("data-correct", index === topic.correct ? "true" : "false");
+            });
+        }
+
+        // التحقق من الإجابة
+        function checkAnswer(selectedIndex) {
+            const selectedOption = document.querySelectorAll(".option")[selectedIndex];
+            const isCorrect = selectedOption.getAttribute("data-correct") === "true";
+
+            if (isCorrect) {
+                selectedOption.style.background = "#4caf50"; // لون أخضر للإجابة الصحيحة
+                correctSound.play(); // تشغيل صوت الإجابة الصحيحة
+                teamScores[currentTeam] += 10; // أضف النقاط
+            } else {
+                selectedOption.style.background = "#f44336"; // لون أحمر للإجابة الخاطئة
+                wrongSound.play(); // تشغيل صوت الإجابة الخاطئة
+            }
+
+            updateScores();
+        }
+
+        // تحديث النقاط
+        function updateScores() {
+            document.getElementById("scores").textContent = `النقاط: فريق 1 (${teamScores[0]}) - فريق 2 (${teamScores[1]})`;
+        }
+
+        // التبديل للسؤال التالي
+        function nextQuestion() {
+            currentTeam = currentTeam === 0 ? 1 : 0; // تبديل الفريق
+            generateQuestion();
+        }
+
+        // بدء اللعبة
+        generateQuestion();
+    </script>
+</body>
+</html>
